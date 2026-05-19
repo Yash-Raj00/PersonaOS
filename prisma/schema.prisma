@@ -4,10 +4,106 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(cuid())
+
+  name                  String
+  email                 String   @unique
+  password              String
+
+  igHandle              String?
+  avatarUrl             String?
+
+  socialMetricsRecords   SocialMetricsRecord[]
+
+  decisions              Decision[]
+  inspirations           Inspiration[]
+  feedbacks              Feedback[]
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model SocialMetricsRecord {
+  id          String   @id @default(cuid())
+
+  metrics     Json
+
+  recordedAt  DateTime @default(now())
+
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Decision {
+  id             String   @id @default(cuid())
+
+  userId         String
+  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title          String
+  description    String?
+
+  status         DecisionStatus @default(ACTIVE)
+
+  thumbnailUrl   String?
+
+  inspirations   Inspiration[]
+  feedbacks      Feedback[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Inspiration {
+  id             String   @id @default(cuid())
+
+  userId         String
+  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title          String
+  description    String?
+
+  sourceUrl      String?
+  thumbnailUrl   String?
+
+  decisions      Decision[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Feedback {
+  id                    String   @id @default(cuid())
+  
+  userId                String
+  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title                 String
+  description           String?
+
+  contentThumbnailUrl   String?
+  contentSourceUrl      String?
+
+  decisions             Decision[]
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+enum DecisionStatus {
+  ACTIVE
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
 }

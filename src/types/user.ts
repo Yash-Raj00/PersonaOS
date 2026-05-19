@@ -1,13 +1,25 @@
+export type SocialMetricValue = string | number | boolean;
+
+export type SocialMetrics = Record<string, Record<string, SocialMetricValue>>;
+
+export type SocialMetricsRecord = {
+  id: string;
+  userId: string; // ID of the persona who owns the metrics
+
+  metrics: SocialMetrics;
+
+  recordedAt: Date;
+};
+
 export interface User {
   id: string;
   name: string;
   email: string;
 
-  //   password: string;
   igHandle?: string;
   avatarUrl?: string;
 
-  metrics?: Record<string, number | string | boolean>; // Flexible field for storing various user metrics
+  socialMetricsRecords?: SocialMetricsRecord[];
 
   createdAt: Date;
   updatedAt: Date;
