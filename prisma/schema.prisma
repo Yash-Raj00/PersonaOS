@@ -13,41 +13,63 @@ datasource db {
 }
 
 model User {
-  id                    String   @id @default(cuid())
+  id          String @id @default(cuid())
 
-  name                  String
-  email                 String   @unique
-  password              String
+  name        String
+  avatarUrl   String?
 
-  igHandle              String?
-  avatarUrl             String?
+  email       String @unique
+  password    String
 
-  socialMetricsRecords   SocialMetricsRecord[]
+  personas    Persona[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Persona {
+  id                     String   @id @default(cuid())
+
+  userId                 String
+  user                   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name                   String
+  email                  String?
+
+  igHandle               String? @unique
+  avatarUrl              String?
+
+  socialMetricRecords   SocialMetricRecord[]
 
   decisions              Decision[]
   inspirations           Inspiration[]
   feedbacks              Feedback[]
 
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([userId])
 }
 
-model SocialMetricsRecord {
+model SocialMetricRecord {
   id          String   @id @default(cuid())
 
   metrics     Json
 
-  recordedAt  DateTime @default(now())
+  personaId      String
+  persona        Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([personaId])
 }
 
 model Decision {
   id             String   @id @default(cuid())
 
-  userId         String
-  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personaId      String
+  persona        Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
 
   title          String
   description    String?
@@ -61,13 +83,15 @@ model Decision {
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([personaId])
 }
 
 model Inspiration {
   id             String   @id @default(cuid())
 
-  userId         String
-  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personaId      String
+  persona        Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
 
   title          String
   description    String?
@@ -79,13 +103,15 @@ model Inspiration {
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  
+  @@index([personaId])
 }
 
 model Feedback {
   id                    String   @id @default(cuid())
   
-  userId                String
-  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personaId      String
+  persona        Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
 
   title                 String
   description           String?
@@ -97,6 +123,8 @@ model Feedback {
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+
+  @@index([personaId])
 }
 
 enum DecisionStatus {

@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/server/lib/prisma";
 
 export async function dbTest() {
   const users = await prisma.user.findMany();
